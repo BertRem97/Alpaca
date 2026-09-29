@@ -55,21 +55,27 @@ class AlpacaTrader:
             return None
 
     def get_bars(self, symbol: str, timeframe: str = "1Day", limit: int = 100) -> list[dict]:
-        """Haal historische candlestick-data (OHLCV) op voor een symbool."""
+        """Haal historische candlestick-data (OHLCV) op voor een symbool via de Alpaca v2 bars endpoint."""
         try:
             params = {
+                "symbols": symbol,
                 "timeframe": timeframe,
                 "limit": str(limit),
                 "adjustment": "raw",
+                "sort": "asc",
             }
             resp = requests.get(
-                f"{self.data_url}/stocks/{symbol}/bars",
+                f"{self.data_url}/stocks/bars",
                 headers=self.headers,
                 params=params,
                 timeout=15,
             )
             if resp.status_code == 200:
-                return resp.json().get("bars", [])
+                data = resp.json()
+                bars_by_symbol = data.get("bars", {})
+                if isinstance(bars_by_symbol, dict):
+                    return bars_by_symbol.get(symbol, [])
+                return bars_by_symbol
             return []
         except Exception:
             return []

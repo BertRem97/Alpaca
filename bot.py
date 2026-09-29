@@ -67,8 +67,6 @@ class TradingBot:
 
     def run(self):
         """Hoofdloop: verwerk Telegram commando's en voer periodiek strategie uit."""
-        print(self.telegram.token)
-        print(self.telegram.chat_id)
         self.telegram.send_message(
             "🤖 Trading Bot is gestart!\n"
             f"Mode: {'PAPER (simulatie)' if Config.PAPER_TRADING else 'LIVE (echt geld!)'}\n"
