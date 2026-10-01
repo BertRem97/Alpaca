@@ -8,6 +8,7 @@ from database import Database
 from strategy import MovingAverageCrossover
 from advanced_strategy import MultiIndicatorStrategy
 from telegram_handler import TelegramHandler
+from pprint import pprint
 
 logging.basicConfig(
     level=logging.INFO,
@@ -121,22 +122,24 @@ class TradingBot:
     def _run_strategy(self):
         """Voer de trading strategie uit voor alle geconfigureerde symbolen."""
         for symbol in Config.SYMBOLS:
-            try:
-                sig = self.strategy.get_signal(symbol)
 
-                if sig["signal"] == "buy":
-                    logger.info(f"BUY signaal voor {symbol}: {sig['reason']}")
-                    self._execute_buy(symbol, Config.QUANTITY, sig)
+            sig = self.strategy.get_signal(symbol)
+            print(symbol)
+            pprint(sig)
+            print('-------------')
 
-                elif sig["signal"] == "sell":
-                    logger.info(f"SELL signaal voor {symbol}: {sig['reason']}")
-                    self._execute_sell(symbol, Config.QUANTITY, sig)
+            if sig["signal"] == "buy":
+                logger.info(f"BUY signaal voor {symbol}: {sig['reason']}")
+                self._execute_buy(symbol, Config.QUANTITY, sig)
 
-                else:
-                    logger.debug(f"HOLD voor {symbol}: {sig.get('reason', '')}")
+            elif sig["signal"] == "sell":
+                logger.info(f"SELL signaal voor {symbol}: {sig['reason']}")
+                self._execute_sell(symbol, Config.QUANTITY, sig)
 
-            except Exception as e:
-                logger.error(f"Fout bij strategie voor {symbol}: {e}")
+            else:
+                logger.debug(f"HOLD voor {symbol}: {sig.get('reason', '')}")
+
+
 
     def _execute_buy(self, symbol: str, qty: float, signal: dict):
         """Voer een kooporder uit en log deze."""

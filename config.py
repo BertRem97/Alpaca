@@ -51,7 +51,7 @@ class Config:
     VOLUME_PERIOD = int(os.getenv("VOLUME_PERIOD", "20"))
 
     # Bot status — standaard uit bij opstarten
-    AUTO_TRADE_ENABLED = os.getenv("AUTO_TRADE_ENABLED", "false").lower() == "true"
+    AUTO_TRADE_ENABLED = os.getenv("AUTO_TRADE_ENABLED", "true").lower() == "true"
     PAPER_TRADING = "paper-api.alpaca.markets" in ALPACA_BASE_URL
 
     @classmethod

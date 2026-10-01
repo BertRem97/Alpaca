@@ -190,8 +190,8 @@ class MultiIndicatorStrategy:
                 "reason": f"Onvoldoende data ({len(bars)} bars, {min_bars} nodig)",
             }
 
-        closes = [float(bar["c"]) for bar in bars]
-        volumes = [float(bar["v"]) for bar in bars]
+        closes = bars['close'].astype(float).tolist()
+        volumes = bars['volume'].astype(float).tolist()
         current_price = closes[-1]
 
         # Bereken alle indicatoren

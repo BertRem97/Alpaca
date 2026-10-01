@@ -1,5 +1,10 @@
 import requests
 from config import Config
+from alpaca.data.historical import StockHistoricalDataClient
+from alpaca.data.requests import StockBarsRequest
+from alpaca.data.timeframe import TimeFrame
+from datetime import datetime, timedelta, timezone
+from alpaca.data.enums import DataFeed
 
 
 class AlpacaTrader:
@@ -10,6 +15,8 @@ class AlpacaTrader:
         self.secret_key = Config.ALPACA_SECRET_KEY
         self.base_url = Config.ALPACA_BASE_URL
         self.data_url = Config.ALPACA_DATA_URL
+        self.client = StockHistoricalDataClient(api_key=Config.ALPACA_API_KEY,
+                                                secret_key=Config.ALPACA_SECRET_KEY)
         self.headers = {
             "APCA-API-KEY-ID": self.api_key,
             "APCA-API-SECRET-KEY": self.secret_key,
@@ -54,31 +61,24 @@ class AlpacaTrader:
         except Exception:
             return None
 
-    def get_bars(self, symbol: str, timeframe: str = "1Day", limit: int = 100) -> list[dict]:
+    def get_bars(self, symbol: str, timeframe: str = "1Day", limit: int = 50) -> list[dict]:
         """Haal historische candlestick-data (OHLCV) op voor een symbool via de Alpaca v2 bars endpoint."""
-        try:
-            params = {
-                "symbols": symbol,
-                "timeframe": timeframe,
-                "limit": str(limit),
-                "adjustment": "raw",
-                "sort": "asc",
-            }
-            resp = requests.get(
-                f"{self.data_url}/stocks/bars",
-                headers=self.headers,
-                params=params,
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                bars_by_symbol = data.get("bars", {})
-                if isinstance(bars_by_symbol, dict):
-                    return bars_by_symbol.get(symbol, [])
-                return bars_by_symbol
-            return []
-        except Exception:
-            return []
+        start=datetime.now(timezone.utc) - timedelta(days=200)
+        end=datetime.now(timezone.utc) - timedelta(minutes=16)
+
+        params = StockBarsRequest(
+            symbol_or_symbols=[symbol],
+            timeframe=TimeFrame.Day,
+            start=start,
+            limit=100,
+            end=end
+        )
+
+        bars = self.client.get_stock_bars(params)
+        df = bars.df
+
+        return df
+
 
     def get_latest_price(self, symbol: str) -> float | None:
         """Haal de meest recente prijs op voor een symbool."""
